@@ -3,7 +3,6 @@ package com.connectionPool.connectionPools;
 import com.connectionPool.configurations.ConnectionConfig;
 import com.connectionPool.connections.Connection;
 import com.connectionPool.enums.ConnectionStateEnum;
-import com.connectionPool.observers.BlockingQueueSynchonizerFactory;
 import com.connectionPool.observers.BlockingQueueSynchronizer;
 
 import java.sql.Timestamp;

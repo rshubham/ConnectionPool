@@ -8,7 +8,7 @@ import com.connectionPool.observers.BlockingQueueSynchonizerFactory;
 import java.sql.SQLException;
 
 
-public class SimpleJDBCConnectionPool implements DBConnectionPool{
+public class SimpleJDBCConnectionPool extends DBConnectionPool{
 
     /* ------------------ Singleton Code -------------------- */
 
@@ -61,7 +61,7 @@ public class SimpleJDBCConnectionPool implements DBConnectionPool{
         if(this.getUsedConnectionQueue().size() == this.getMaxPoolCapacity()) {
             this.getUsedConnectionQueue().remove(connection);
             System.out.println("Connection is released back to Idle, notifyAll() Called");
-            notifyAll();
+            this.notifyAll();
         }
     }
 
