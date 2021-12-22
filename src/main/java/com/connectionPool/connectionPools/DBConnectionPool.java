@@ -2,7 +2,7 @@ package com.connectionPool.connectionPools;
 
 import com.connectionPool.connections.dbConnections.DBConnection;
 
-public interface DBConnectionPool extends ConnectionPool {
+public abstract class DBConnectionPool extends ConnectionPool {
     @Override
-    public DBConnection getConnection();
+    public abstract DBConnection getConnection();
 }

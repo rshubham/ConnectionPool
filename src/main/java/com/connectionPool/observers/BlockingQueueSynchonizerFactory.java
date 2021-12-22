@@ -7,8 +7,8 @@ import java.util.concurrent.BlockingQueue;
 
 public class BlockingQueueSynchonizerFactory {
 
-    public static BlockingQueueSynchronizer createBlockingQueueSynchronizer(BlockingQueue<Connection> idleQueue, BlockingQueue<Connection> usedQueue, Integer maxCapacity){
-        return new BlockingQueueSynchronizer(idleQueue,usedQueue,maxCapacity);
+    public static BlockingQueueSynchronizer createBlockingQueueSynchronizer(ConnectionPool connectionPool){
+        return new BlockingQueueSynchronizer(connectionPool);
     }
 
 }

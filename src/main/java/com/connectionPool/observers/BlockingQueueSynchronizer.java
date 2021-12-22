@@ -1,5 +1,6 @@
 package com.connectionPool.observers;
 
+import com.connectionPool.connectionPools.ConnectionPool;
 import com.connectionPool.connections.Connection;
 import com.connectionPool.enums.ConnectionStateEnum;
 
@@ -8,24 +9,25 @@ import java.util.concurrent.BlockingQueue;
 
 public class BlockingQueueSynchronizer implements Runnable {
 
-    private BlockingQueue<Connection> idleQueue;
-    private BlockingQueue<Connection> usedQueue;
-    private Integer maxCapacity;
+    private ConnectionPool connectionPool;
     private boolean interuptSignal = false;
     private Timestamp lastSyncTimeStamp;
 
-    public BlockingQueueSynchronizer(BlockingQueue<Connection> idleQueue, BlockingQueue<Connection> usedQueue, Integer maxCapacity){
-        this.idleQueue = idleQueue;
-        this.usedQueue = usedQueue;
-        this.maxCapacity = maxCapacity;
+    public BlockingQueueSynchronizer(ConnectionPool connectionPool) {
+        this.connectionPool = connectionPool;
     }
 
     @Override
     public void run() {
-        if(this.usedQueue.size() == this.maxCapacity){
+
+        BlockingQueue<Connection> idleQueue = this.connectionPool.getIdleConnectionQueue();
+        BlockingQueue<Connection> usedQueue = this.connectionPool.getUsedConnectionQueue();
+
+        if(usedQueue.size() == this.connectionPool.getMaxPoolCapacity()){
             lastSyncTimeStamp = new Timestamp(System.currentTimeMillis());
-            while(!this.usedQueue.isEmpty() && this.usedQueue.peek().getConnectionState() == ConnectionStateEnum.IDLE) {
-                this.idleQueue.offer(this.usedQueue.poll());
+            this.connectionPool.notifyConnectionsAvailability();
+            while(!usedQueue.isEmpty() && usedQueue.peek().getConnectionState() == ConnectionStateEnum.IDLE) {
+                idleQueue.offer(usedQueue.poll());
             }
         }
     }
