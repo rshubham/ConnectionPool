@@ -1,4 +1,4 @@
-package com.connectionPool.observers;
+package com.connectionPool.synchronizers;
 
 import com.connectionPool.connectionPools.ConnectionPool;
 import com.connectionPool.connections.Connection;

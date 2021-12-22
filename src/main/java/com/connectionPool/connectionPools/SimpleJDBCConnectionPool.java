@@ -4,7 +4,7 @@ import com.connectionPool.connectionFactories.SimpleDBConnectionFactory;
 import com.connectionPool.connections.Connection;
 import com.connectionPool.connections.dbConnections.DBConnection;
 import com.connectionPool.enums.ConnectionStateEnum;
-import com.connectionPool.observers.BlockingQueueSynchonizerFactory;
+import com.connectionPool.synchronizers.BlockingQueueSynchonizerFactory;
 import java.sql.SQLException;
 
 
@@ -23,7 +23,7 @@ public class SimpleJDBCConnectionPool extends DBConnectionPool{
         private static SimpleJDBCConnectionPool instance = new SimpleJDBCConnectionPool();
     }
 
-    public static SimpleJDBCConnectionPool getFactory(){
+    public static SimpleJDBCConnectionPool getConnectionPool(){
         return SimpleJDBCConnectionPool.SimpleJDBCConnectionPoolHelper.instance;
     }
 
