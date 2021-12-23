@@ -1,5 +1,7 @@
 package com.connectionPool.enums;
 
+import com.connectionPool.connectionPools.ConnectionPool;
+
 public enum ConnectionStateEnum {
     OPEN("Open Status"), ACTIVE("Active Status"), IDLE("Idle Status"), DISCARDED("Discarded Status");
 

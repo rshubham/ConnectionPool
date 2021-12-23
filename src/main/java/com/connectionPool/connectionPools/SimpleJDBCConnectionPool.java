@@ -4,8 +4,8 @@ import com.connectionPool.connectionFactories.SimpleDBConnectionFactory;
 import com.connectionPool.connections.Connection;
 import com.connectionPool.connections.dbConnections.DBConnection;
 import com.connectionPool.enums.ConnectionStateEnum;
-import com.connectionPool.synchronizers.BlockingQueueSynchonizerFactory;
 import java.sql.SQLException;
+
 
 
 public class SimpleJDBCConnectionPool extends DBConnectionPool{
@@ -14,16 +14,13 @@ public class SimpleJDBCConnectionPool extends DBConnectionPool{
 
     private SimpleJDBCConnectionPool(){
         super();
-        this.setBlockingQueueSynchonizer(BlockingQueueSynchonizerFactory.createBlockingQueueSynchronizer(this));
-        this.getBlockingQueueSynchonizer().triggerSync();
-        this.setWaitStartTimeStamp(this.getBlockingQueueSynchonizer().lastSyncTimeStamp());
     }
 
     private static class SimpleJDBCConnectionPoolHelper{
-        private static SimpleJDBCConnectionPool instance = new SimpleJDBCConnectionPool();
+        private static DBConnectionPool instance = new SimpleJDBCConnectionPool();
     }
 
-    public static SimpleJDBCConnectionPool getConnectionPool(){
+    public static DBConnectionPool getConnectionPool(){
         return SimpleJDBCConnectionPool.SimpleJDBCConnectionPoolHelper.instance;
     }
 
@@ -31,10 +28,11 @@ public class SimpleJDBCConnectionPool extends DBConnectionPool{
 
     @Override
     public synchronized DBConnection getConnection() {
+        System.out.println("Inside SimpleJDBCConnectionPool => getConnection()..");
         DBConnection connection;
-        if(this.getIdleConnectionQueue().isEmpty() && this.getUsedConnectionQueue().size() == getMaxPoolCapacity()) {
+        if(this.getUsedConnectionQueue().size() == this.getMaxPoolCapacity() && !isConnectionAvailableForUse()) {
+            System.out.println("Used BlockingQueue is Full => going to wait.. usedQueue size : "+ this.getUsedConnectionQueue().size());
             try {
-                this.setWaitStartTimeStamp(this.getBlockingQueueSynchonizer().lastSyncTimeStamp());
                 System.out.println("Wait Called on Incoming Thread!");
                 this.wait();
 
@@ -42,25 +40,28 @@ public class SimpleJDBCConnectionPool extends DBConnectionPool{
                 e.printStackTrace();
             }
         }
-        if(this.getIdleConnectionQueue().isEmpty()){
+        System.out.println(" Used BlockingQueue current Size : " + this.getUsedConnectionQueue().size());
+        if(this.getUsedConnectionQueue().size() < this.getMaxPoolCapacity() && !isConnectionAvailableForUse()){
+            System.out.println("Used BlockingQueue is not full => creating and caching new Connection..");
             connection = (DBConnection) SimpleDBConnectionFactory.getFactory().createConnection();
             connection.setConnectionState(ConnectionStateEnum.ACTIVE);
             this.getUsedConnectionQueue().add(connection);
             return connection;
         }
-        connection = (DBConnection) this.getIdleConnectionQueue().poll();
+        System.out.println("fetching connection from pool..");
+        connection = (DBConnection) this.getUsedConnectionQueue().peek();
         connection.setConnectionState(ConnectionStateEnum.ACTIVE);
         return connection;
     }
 
     @Override
     public synchronized void releaseConnection(Connection connection) {
+        System.out.println("Inside releaseConnection() => Releasing Connection back to Pool");
         if(this.getUsedConnectionQueue().contains(connection)){
             connection.setConnectionState(ConnectionStateEnum.IDLE);
         }
         if(this.getUsedConnectionQueue().size() == this.getMaxPoolCapacity()) {
-            this.getUsedConnectionQueue().remove(connection);
-            System.out.println("Connection is released back to Idle, notifyAll() Called");
+            System.out.println("Connection is released and State changed to Idle, notifyAll() Called");
             this.notifyAll();
         }
     }
@@ -73,6 +74,32 @@ public class SimpleJDBCConnectionPool extends DBConnectionPool{
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    @Override
+    public synchronized void discardAllConnections() {
+        System.out.println("Inside discardAllConnections() => Discarding Connections back to Pool");
+        System.out.println("usedQueue size : " + this.getUsedConnectionQueue().size());
+        if(this.getUsedConnectionQueue().size() == this.getMaxPoolCapacity()){
+            while(!this.getUsedConnectionQueue().isEmpty()){
+                DBConnection connection = (DBConnection) this.getUsedConnectionQueue().poll();
+                try {
+                    connection.getConnection().close();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    public boolean isConnectionAvailableForUse(){
+
+        if (!this.getUsedConnectionQueue().isEmpty() && this.getUsedConnectionQueue().peek().getConnectionState() == ConnectionStateEnum.IDLE){
+            this.notifyAll();
+            return true;
+        }
+        return false;
     }
 
 }
