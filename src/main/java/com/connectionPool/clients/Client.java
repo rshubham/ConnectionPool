@@ -1,8 +1,5 @@
-package com.connectionPool;
+package com.connectionPool.clients;
 
-import com.connectionPool.clients.ClientProcessor;
-import com.connectionPool.connectionPools.SimpleJDBCConnectionPool;
-import com.connectionPool.connections.Connection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -36,12 +33,12 @@ public class Client {
                 System.out.println("Done");
                 //shut down executor service
                 executorService.shutdown();
-                System.out.println("Discarding All Connections in Connection Pool, usedQueue size: "+ SimpleJDBCConnectionPool.getConnectionPool().getUsedConnectionQueue().size());
+                /*System.out.println("Discarding All Connections in Connection Pool, usedQueue size: "+ SimpleJDBCConnectionPool.getConnectionPool().getUsedConnectionQueue().size());
                 SimpleJDBCConnectionPool.getConnectionPool().discardAllConnections();
                 System.out.println("Discarded ConnectionPool => usedQueue size: "+ SimpleJDBCConnectionPool.getConnectionPool().getUsedConnectionQueue().size());
                 for(Connection con : SimpleJDBCConnectionPool.getConnectionPool().getUsedConnectionQueue()){
                     System.out.print(con.getConnectionState().name()+ ", ");
-                }
+                }*/
                 break;
             }
 

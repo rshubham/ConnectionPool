@@ -1,15 +1,13 @@
 package com.connectionPool.configurations;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import com.connectionPool.enums.ConnectionConfigEnum;
+
+import java.io.*;
 import java.util.Properties;
 
 public class ConnectionConfig {
 
     private Properties connectionProperties;
-    private static final String configFilePath = "src/main/resources/connection.properties";
 
     /* ------------------ Singleton Code -------------------- */
 
@@ -29,13 +27,13 @@ public class ConnectionConfig {
 
     public String getConfig(String key){
         String value = "";
+
         try {
-            FileReader fileReader = new FileReader(configFilePath);
-            this.connectionProperties.load(fileReader);
+            ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+            InputStream inputStream = classloader.getResourceAsStream(ConnectionConfigEnum.CONFIG_FILE.getValue());
+            this.connectionProperties.load(inputStream);
             value = this.connectionProperties.getProperty(key);
-            fileReader.close();
-        } catch (FileNotFoundException exception) {
-            exception.printStackTrace();
+            inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

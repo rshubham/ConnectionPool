@@ -3,9 +3,11 @@ package com.connectionPool.connectionPools;
 import com.connectionPool.connectionFactories.SimpleDBConnectionFactory;
 import com.connectionPool.connections.Connection;
 import com.connectionPool.connections.dbConnections.DBConnection;
+import com.connectionPool.enums.ConnectionPoolEnum;
 import com.connectionPool.enums.ConnectionStateEnum;
 import java.sql.SQLException;
-
+import java.util.Comparator;
+import java.util.concurrent.PriorityBlockingQueue;
 
 
 public class SimpleJDBCConnectionPool extends DBConnectionPool{
@@ -14,6 +16,19 @@ public class SimpleJDBCConnectionPool extends DBConnectionPool{
 
     private SimpleJDBCConnectionPool(){
         super();
+        if(this.getMaxPoolCapacity() == null) this.setMAX_POOL_CAPACITY(Integer.parseInt(ConnectionPoolEnum.DEFAULT_MAX_POOL_CAPACITY.getValue()));
+        this.setUsedConnectionQueue(new PriorityBlockingQueue<>(this.getMaxPoolCapacity(), new Comparator<Connection>() {
+            @Override
+            public int compare(Connection o1, Connection o2) {
+                if(o1.getConnectionState() == ConnectionStateEnum.IDLE && o2.getConnectionState() == ConnectionStateEnum.ACTIVE) return -1;
+                if((o1.getConnectionState() == ConnectionStateEnum.IDLE && o2.getConnectionState() == ConnectionStateEnum.IDLE)
+                        || ((o1.getConnectionState() == ConnectionStateEnum.ACTIVE && o2.getConnectionState() == ConnectionStateEnum.ACTIVE)))
+                {
+                    return 0;
+                }
+                return 1;
+            }
+        }));
     }
 
     private static class SimpleJDBCConnectionPoolHelper{
@@ -59,42 +74,14 @@ public class SimpleJDBCConnectionPool extends DBConnectionPool{
         System.out.println("Inside releaseConnection() => Releasing Connection back to Pool");
         if(this.getUsedConnectionQueue().contains(connection)){
             connection.setConnectionState(ConnectionStateEnum.IDLE);
-        }
-        if(this.getUsedConnectionQueue().size() == this.getMaxPoolCapacity()) {
-            System.out.println("Connection is released and State changed to Idle, notifyAll() Called");
             this.notifyAll();
         }
-    }
-
-    @Override
-    public synchronized void discardConnection(Connection connection) {
-        connection.setConnectionState(ConnectionStateEnum.DISCARDED);
-        try {
-            ((DBConnection) connection).getConnection().close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-    }
-
-    @Override
-    public synchronized void discardAllConnections() {
-        System.out.println("Inside discardAllConnections() => Discarding Connections back to Pool");
-        System.out.println("usedQueue size : " + this.getUsedConnectionQueue().size());
-        if(this.getUsedConnectionQueue().size() == this.getMaxPoolCapacity()){
-            while(!this.getUsedConnectionQueue().isEmpty()){
-                DBConnection connection = (DBConnection) this.getUsedConnectionQueue().poll();
-                try {
-                    connection.getConnection().close();
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
-            }
-        }
+        this.setIdleQueueTimestamp();
+        this.discardAllConnectionsPostTimeOut();
     }
 
 
     public boolean isConnectionAvailableForUse(){
-
         if (!this.getUsedConnectionQueue().isEmpty() && this.getUsedConnectionQueue().peek().getConnectionState() == ConnectionStateEnum.IDLE){
             this.notifyAll();
             return true;

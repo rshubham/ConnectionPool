@@ -1,9 +1,16 @@
 package com.connectionPool.clients;
 
+import com.connectionPool.configurations.ConnectionConfig;
 import com.connectionPool.connectionPools.DBConnectionPool;
 import com.connectionPool.connectionPools.SimpleJDBCConnectionPool;
+import com.connectionPool.enums.ConnectionConfigEnum;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
+import java.util.Properties;
 
 public class TestClient {
 

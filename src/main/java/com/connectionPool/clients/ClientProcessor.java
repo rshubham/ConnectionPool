@@ -55,6 +55,7 @@ public class ClientProcessor implements Callable {
             throwables.printStackTrace();
         } finally {
             SimpleJDBCConnectionPool.getConnectionPool().releaseConnection(connection);
+
         }
 
         return this.resultSetList;
