@@ -4,15 +4,11 @@ import com.connectionPool.configurations.ConnectionConfig;
 import com.connectionPool.connections.Connection;
 import com.connectionPool.connections.dbConnections.SimpleDBConnection;
 import com.connectionPool.enums.ConnectionStateEnum;
+import com.connectionPool.enums.SimpleDBConnectionFactoryEnum;
 
 public class SimpleDBConnectionFactory implements ConnectionFactory{
 
     ConnectionConfig config;
-
-    public static final String JDBC_URL = "ConnectionPool.SimpleDBConnection.jdbcURL";
-    public static final String DRIVER_URL = "ConnectionPool.SimpleDBConnection.driverURL";
-    public static final String USERNAME = "ConnectionPool.SimpleDBConnection.username";
-    public static final String PASSWORD = "ConnectionPool.SimpleDBConnection.password";
 
     /* ------------------ Singleton Code -------------------- */
 
@@ -33,10 +29,10 @@ public class SimpleDBConnectionFactory implements ConnectionFactory{
     @Override
     public Connection createConnection() {
         Connection connection = new SimpleDBConnection.SimpleDBConnectionBuilder()
-                .setJdbcURL(config.getConfig(JDBC_URL))
-                .setDriverURL(config.getConfig(DRIVER_URL))
-                .setUserName(config.getConfig(USERNAME))
-                .setPassword(config.getConfig(PASSWORD))
+                .setJdbcURL(config.getConfig(SimpleDBConnectionFactoryEnum.JDBC_URL.getValue()))
+                .setDriverURL(config.getConfig(SimpleDBConnectionFactoryEnum.DRIVER_URL.getValue()))
+                .setUserName(config.getConfig(SimpleDBConnectionFactoryEnum.USERNAME.getValue()))
+                .setPassword(config.getConfig(SimpleDBConnectionFactoryEnum.PASSWORD.getValue()))
                 .setConnectionState(ConnectionStateEnum.OPEN)
                 .build();
         connection.connect();
