@@ -55,7 +55,7 @@ public class SimpleJDBCConnectionPool extends DBConnectionPool{
                 e.printStackTrace();
             }
         }
-        System.out.println(" Used BlockingQueue current Size : " + this.getUsedConnectionQueue().size());
+        System.out.println("Used BlockingQueue current Size : " + this.getUsedConnectionQueue().size());
         if(this.getUsedConnectionQueue().size() < this.getMaxPoolCapacity() && !isConnectionAvailableForUse()){
             System.out.println("Used BlockingQueue is not full => creating and caching new Connection..");
             connection = (DBConnection) SimpleDBConnectionFactory.getFactory().createConnection();
