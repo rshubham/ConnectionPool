@@ -17,9 +17,7 @@ public class SimpleJDBCConnectionPool extends DBConnectionPool{
     private SimpleJDBCConnectionPool(){
         super();
         if(this.getMaxPoolCapacity() == null) this.setMAX_POOL_CAPACITY(Integer.parseInt(ConnectionPoolEnum.DEFAULT_MAX_POOL_CAPACITY.getValue()));
-        this.setUsedConnectionQueue(new PriorityBlockingQueue<>(this.getMaxPoolCapacity(), new Comparator<Connection>() {
-            @Override
-            public int compare(Connection o1, Connection o2) {
+        this.setUsedConnectionQueue(new PriorityBlockingQueue<>(this.getMaxPoolCapacity(), (o1, o2) -> {
                 if(o1.getConnectionState() == ConnectionStateEnum.IDLE && o2.getConnectionState() == ConnectionStateEnum.ACTIVE) return -1;
                 if((o1.getConnectionState() == ConnectionStateEnum.IDLE && o2.getConnectionState() == ConnectionStateEnum.IDLE)
                         || ((o1.getConnectionState() == ConnectionStateEnum.ACTIVE && o2.getConnectionState() == ConnectionStateEnum.ACTIVE)))
@@ -27,7 +25,6 @@ public class SimpleJDBCConnectionPool extends DBConnectionPool{
                     return 0;
                 }
                 return 1;
-            }
         }));
     }
 
