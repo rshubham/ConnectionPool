@@ -8,11 +8,11 @@ public class Client {
 
     public static void main(String[] args) throws ExecutionException {
 
-        ClientProcessor employeeProcessor = new ClientProcessor("select * from EMPLOYEES where rownum <= 1");
-        ClientProcessor locationProcessor = new ClientProcessor("select * from LOCATIONS where rownum <= 1");
-        ClientProcessor departmentProcessor = new ClientProcessor("select * from DEPARTMENTS where rownum <= 1");
-        ClientProcessor countriesProcessor = new ClientProcessor("select * from COUNTRIES where rownum <= 1");
-        ClientProcessor jobHistoryProcessor = new ClientProcessor("select * from JOB_HISTORY where rownum <= 1");
+        ClientProcessor employeeProcessor = new ClientProcessor("select * from EMPLOYEES LIMIT 1");
+        ClientProcessor locationProcessor = new ClientProcessor("select * from SALARIES LIMIT 1");
+        ClientProcessor departmentProcessor = new ClientProcessor("select * from DEPARTMENTS LIMIT 1");
+        ClientProcessor countriesProcessor = new ClientProcessor("select * from TITLES LIMIT 1");
+        ClientProcessor jobHistoryProcessor = new ClientProcessor("select * from DEPT_MANAGER LIMIT 1");
 
         FutureTask employeeTask = employeeProcessor.processQueryWithNewConnection();
         FutureTask locationTask = locationProcessor.processQueryWithNewConnection();

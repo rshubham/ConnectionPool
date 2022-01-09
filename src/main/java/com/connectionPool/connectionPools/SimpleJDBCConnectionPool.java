@@ -66,17 +66,6 @@ public class SimpleJDBCConnectionPool extends DBConnectionPool{
         return connection;
     }
 
-    @Override
-    public synchronized void releaseConnection(Connection connection) {
-        System.out.println("Inside releaseConnection() => Releasing Connection back to Pool");
-        if(this.getUsedConnectionQueue().contains(connection)){
-            connection.setConnectionState(ConnectionStateEnum.IDLE);
-            this.notifyAll();
-        }
-        this.setIdleQueueTimestamp();
-        this.discardAllConnectionsPostTimeOut();
-    }
-
 
     public boolean isConnectionAvailableForUse(){
         if (!this.getUsedConnectionQueue().isEmpty() && this.getUsedConnectionQueue().peek().getConnectionState() == ConnectionStateEnum.IDLE){

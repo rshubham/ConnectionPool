@@ -52,11 +52,11 @@ public class SimpleDBConnection implements DBConnection {
         /*--- Create a JDBC Connection -----*/
         try {
             // load driver class
-            //Class.forName(getDriverURL());
-            DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
+            Class.forName(getDriverURL());
+            //DriverManager.registerDriver(new mysql.);
             //Creation Connection Object
             this.connection = DriverManager.getConnection(getJdbcURL(),getUserName(),getPassword());
-        } catch (SQLException throwables) {
+        } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
         }
     }

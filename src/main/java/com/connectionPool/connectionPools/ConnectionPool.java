@@ -38,7 +38,6 @@ public abstract class ConnectionPool {
 
 
     public abstract Connection getConnection();
-    public abstract void releaseConnection(Connection connection);
 
     public synchronized void discardConnection(Connection connection) {
         connection.setConnectionState(ConnectionStateEnum.DISCARDED);
@@ -111,6 +110,16 @@ public abstract class ConnectionPool {
             areAllIdle &= (con.getConnectionState() == ConnectionStateEnum.IDLE)? true : false;
         }
         this.idleQueueTimestamp = areAllIdle ? new Timestamp(System.currentTimeMillis()) : this.idleQueueTimestamp;
+    }
+
+    public synchronized void releaseConnection(Connection connection) {
+        System.out.println("Inside releaseConnection() => Releasing Connection back to Pool");
+        if(this.getUsedConnectionQueue().contains(connection)){
+            connection.setConnectionState(ConnectionStateEnum.IDLE);
+            this.notifyAll();
+        }
+        this.setIdleQueueTimestamp();
+        this.discardAllConnectionsPostTimeOut();
     }
 
     public void setMAX_POOL_CAPACITY(Integer MAX_POOL_CAPACITY) {
