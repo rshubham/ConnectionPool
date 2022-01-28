@@ -19,7 +19,7 @@ public abstract class ConnectionPool {
     private Integer MAX_IDLE_TTL;
     private Timestamp idleQueueTimestamp;
 
-    ConnectionPool(){
+    public ConnectionPool(){
 
         String MAX_POOL_CAPACITY = ConnectionConfig.getConfig().getConfig(ConnectionPoolEnum.MAX_POOL_CAPACITY.getValue());
         if(MAX_POOL_CAPACITY == null)
